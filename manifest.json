@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "사이드바 메모장",
+  "version": "1.0",
+  "description": "웹 서핑 중 간단한 메모를 사이드바에 저장하고 관리합니다.",
+  "permissions": ["sidePanel", "storage"],
+  "side_panel": {
+    "default_path": "sidebar.html"
+  },
+  "action": {
+    "default_title": "사이드바 메모장 열기",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

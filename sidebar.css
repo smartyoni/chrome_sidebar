@@ -1,0 +1,246 @@
+:root {
+    --primary-color: #6a5acd;
+    --primary-gradient: linear-gradient(135deg, #8971ea, #6495ed);
+    --light-gray: #f0f2f5;
+    --dark-gray: #333;
+    --border-color: #e0e0e0;
+    --copy-color: #74b9ff;
+    --edit-color: #fdcb6e;
+    --delete-color: #ff7675;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--light-gray);
+}
+
+/* 커스텀 확인 창 스타일 */
+#confirm-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    z-index: 2000;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+#confirm-modal p {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+}
+.confirm-buttons button {
+    padding: 8px 16px;
+    margin: 0 5px;
+    border-radius: 8px;
+    margin-top: 0;
+    border: none;
+}
+#confirm-yes {
+    background-color: var(--delete-color);
+}
+#confirm-no {
+    background-color: #6c757d;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 15px;
+}
+
+header {
+    flex-shrink: 0;
+}
+
+main {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+}
+
+h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    border-bottom: none;
+    margin: 0 0 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#current-datetime {
+    font-size: 12px;
+    font-weight: 400;
+    color: #636e72;
+}
+
+/* 폼 스타일 */
+textarea {
+    width: 100%;
+    min-height: 240px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+    box-sizing: border-box;
+    resize: vertical;
+}
+button[type="submit"] {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* 리스트 헤더 (카테고리명 + 수정/삭제 버튼) */
+#list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+#list-header h2 {
+    color: var(--primary-color);
+    font-size: 16px;
+}
+#list-header-actions button {
+    margin: 0 0 0 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 8px;
+    color: white;
+    margin-top: 0;
+}
+#list-header-actions .edit-btn { background-color: #546e7a; }
+#list-header-actions .delete-btn { background-color: #ff6b6b; }
+
+/* 메모 목록 */
+#memo-list {
+    list-style: none;
+    padding: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+#memo-list li {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    background-color: #fff;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+#memo-list li:hover {
+    border-color: var(--primary-color);
+}
+.memo-title {
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+li.pinned {
+    background-color: #f0f8ff;
+}
+.pin-btn {
+    background: none; border: none; cursor: pointer; font-size: 16px;
+    padding: 0 8px 0 0; opacity: 0.4; transition: opacity 0.2s; margin: 0;
+}
+.pin-btn:hover { opacity: 1; }
+.pin-btn.pinned { opacity: 1; color: var(--primary-color); }
+
+
+/* 하단 탭바 스타일 */
+.tabs-container {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-top: 15px;
+}
+.tabs {
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+.tab-btn {
+    flex: 1 1 auto;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: none;
+    background-color: #eee;
+    color: var(--dark-gray);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin-top: 0;
+}
+.tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+#add-tab-btn {
+    margin-left: 8px;
+    margin-top: 0;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    line-height: 1;
+    background: var(--light-gray);
+    color: var(--dark-gray);
+    align-self: center;
+}
+
+/* 팝업 모달 */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+.modal-content { background-color: #fefefe; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.modal-header { padding: 10px 20px; border-bottom: 1px solid #eee; background-color: #f7f7f7; border-radius: 16px 16px 0 0; cursor: move; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { margin: 0; border: none; padding: 0; font-size: 16px; }
+.modal-body { padding: 20px; }
+.close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+#view-content { white-space: pre-wrap; background: var(--light-gray); padding: 15px; border-radius: 10px; max-height: 60vh; overflow-y: auto; margin-top: 15px; }
+#view-content a { color: var(--primary-color); }
+.form-group { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.form-group select { padding: 5px; border-radius: 4px; }
+.modal-actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+.modal-btn {
+    margin-top: 0;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 12px;
+    color: white;
+    border: none;
+}
+.modal-actions .copy-btn { background-color: var(--copy-color); }
+.modal-actions .edit-btn { background-color: var(--edit-color); }
+.modal-actions .delete-btn { background-color: var(--delete-color); }
