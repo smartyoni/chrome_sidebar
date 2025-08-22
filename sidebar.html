@@ -2,42 +2,29 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>사이드바 메모장</title>
     <link rel="stylesheet" href="sidebar.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <div id="confirm-modal" style="display: none;">
-        <p id="confirm-message"></p>
-        <div class="confirm-buttons">
-            <button id="confirm-yes">삭제</button>
-            <button id="confirm-no">취소</button>
-        </div>
-    </div>
-
-    <div class="container">
-        <header>
-            <h2>새 메모 <span id="current-datetime"></span></h2>
+    <div class="main-container">
+        <header id="quick-memo-section">
+            <h2>빠른 메모 <span id="current-datetime"></span></h2>
             <form id="memo-form">
-                <textarea id="memo-input" placeholder="메모를 입력하세요. 첫 줄은 제목이 됩니다."></textarea>
-                <button type="submit">저장</button>
+                <textarea id="memo-input" placeholder="메모를 입력하세요. 쉽고 빠른 메모 작성"></textarea>
+                <div class="button-row">
+                    <button type="button" id="add-category-btn">새 카테고리 추가</button>
+                    <button type="submit">저장</button>
+                </div>
             </form>
         </header>
 
-        <main>
-            <div id="list-header">
-                <h2 id="list-header-title">메모 목록</h2>
-                <div id="list-header-actions">
-                    </div>
+        <main id="category-section">
+            <div id="category-accordion">
+                <!-- 카테고리 추가될 영역 -->
             </div>
-            <ul id="memo-list">
-                </ul>
         </main>
-
-        <div class="tabs-container">
-            <div class="tabs">
-                </div>
-            <button id="add-tab-btn" title="새 탭 추가">+</button>
-        </div>
     </div>
 
     <div id="view-modal" class="modal">
@@ -48,8 +35,9 @@
             </div>
             <div class="modal-body">
                 <p id="view-content"></p>
-                <div class="modal-actions">
-                    </div>
+            </div>
+            <div class="modal-footer" id="view-modal-footer">
+                <!-- Additional button area -->
             </div>
         </div>
     </div>
@@ -62,19 +50,16 @@
             </div>
             <div class="modal-body">
                 <form id="edit-form">
-                    <input type="hidden" id="edit-id">
-                    <div class="form-group">
-                        <label for="edit-category">카테고리</label>
-                        <select id="edit-category"></select>
+                    <textarea id="edit-content" placeholder="수정할 내용을 입력하세요"></textarea>
+                    <div class="button-row">
+                        <button type="button" id="cancel-edit-btn">취소</button>
+                        <button type="submit">저장</button>
                     </div>
-                    <textarea id="edit-input" rows="5"></textarea>
-                    <button type="submit">수정 완료</button>
                 </form>
             </div>
         </div>
     </div>
-    
-    <script src="sortable.min.js"></script>
+
     <script src="sidebar.js"></script>
 </body>
 </html>
