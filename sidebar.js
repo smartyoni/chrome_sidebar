@@ -151,6 +151,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 이벤트 리스너 등록
         attachCategoryEventListeners();
+        
+        // 초기 상태 설정 - 확장된 카테고리의 높이를 auto로 설정
+        setTimeout(() => {
+            categories.forEach(category => {
+                const isExpanded = expandedCategories.has(category.name);
+                const memoListElement = document.querySelector(`.memo-list[data-category="${category.name}"]`);
+                if (memoListElement) {
+                    if (isExpanded) {
+                        memoListElement.style.height = 'auto';
+                    } else {
+                        memoListElement.style.height = '0px';
+                    }
+                }
+            });
+        }, 50);
     };
 
     // 카테고리 이벤트 리스너
@@ -179,14 +194,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // 축소
                     expandedCategories.delete(categoryName);
                     header.classList.remove('active');
+                    
+                    // 애니메이션을 위해 현재 높이를 설정한 후 0으로 변경
+                    const currentHeight = memoList.scrollHeight;
+                    memoList.style.height = currentHeight + 'px';
+                    memoList.offsetHeight; // 강제 리플로우
+                    memoList.style.height = '0px';
                     memoList.classList.remove('expanded');
                     if (toggle) toggle.classList.remove('expanded');
                 } else {
                     // 확장
                     expandedCategories.add(categoryName);
                     header.classList.add('active');
+                    
+                    // 애니메이션을 위해 높이를 계산해서 설정
                     memoList.classList.add('expanded');
+                    const targetHeight = memoList.scrollHeight;
+                    memoList.style.height = '0px';
+                    memoList.offsetHeight; // 강제 리플로우
+                    memoList.style.height = targetHeight + 'px';
                     if (toggle) toggle.classList.add('expanded');
+                    
+                    // 애니메이션 완료 후 height를 auto로 변경
+                    setTimeout(() => {
+                        if (expandedCategories.has(categoryName)) {
+                            memoList.style.height = 'auto';
+                        }
+                    }, 300);
                 }
 
                 saveData();
