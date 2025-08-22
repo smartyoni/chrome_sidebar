@@ -152,32 +152,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 이벤트 리스너 등록
         attachCategoryEventListeners();
         
-        // 초기 상태 설정 - 확장된 카테고리의 높이를 auto로 설정
-        setTimeout(() => {
-            categories.forEach(category => {
-                const isExpanded = expandedCategories.has(category.name);
-                const memoListElement = document.querySelector(`.memo-list[data-category="${category.name}"]`);
-                if (memoListElement) {
-                    if (isExpanded) {
-                        memoListElement.style.height = 'auto';
-                    } else {
-                        memoListElement.style.height = '0px';
-                    }
-                }
-            });
-        }, 50);
+        // 초기 상태 확인 로그
+        console.log('카테고리 렌더링 완료. 확장된 카테고리:', Array.from(expandedCategories));
     };
 
     // 카테고리 이벤트 리스너
     const attachCategoryEventListeners = () => {
+        console.log('이벤트 리스너 연결 중...');
+        
         // 카테고리 헤더 클릭 (확장/축소)
-        categoryAccordion.querySelectorAll('.category-header').forEach(header => {
+        categoryAccordion.querySelectorAll('.category-header').forEach((header, index) => {
+            console.log(`헤더 ${index} 이벤트 리스너 추가:`, header.dataset.category);
+            
             header.addEventListener('click', (e) => {
+                console.log('헤더 클릭됨:', e.target);
+                
                 // 편집/삭제 버튼 클릭 시 아코디언 토글 방지
                 if (e.target.classList.contains('edit-category-btn') || 
                     e.target.classList.contains('delete-category-btn') ||
                     e.target.closest('.edit-category-btn') ||
                     e.target.closest('.delete-category-btn')) {
+                    console.log('편집/삭제 버튼 클릭 - 토글 방지');
                     return;
                 }
 
@@ -188,39 +183,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const memoList = header.nextElementSibling;
                 const toggle = header.querySelector('.category-toggle');
 
-                console.log('토글 클릭:', categoryName, expandedCategories.has(categoryName));
+                console.log('카테고리 토글:', categoryName, '현재 상태:', expandedCategories.has(categoryName));
 
                 if (expandedCategories.has(categoryName)) {
                     // 축소
+                    console.log('축소 실행');
                     expandedCategories.delete(categoryName);
                     header.classList.remove('active');
-                    
-                    // 애니메이션을 위해 현재 높이를 설정한 후 0으로 변경
-                    const currentHeight = memoList.scrollHeight;
-                    memoList.style.height = currentHeight + 'px';
-                    memoList.offsetHeight; // 강제 리플로우
-                    memoList.style.height = '0px';
                     memoList.classList.remove('expanded');
                     if (toggle) toggle.classList.remove('expanded');
                 } else {
                     // 확장
+                    console.log('확장 실행');
                     expandedCategories.add(categoryName);
                     header.classList.add('active');
-                    
-                    // 애니메이션을 위해 높이를 계산해서 설정
                     memoList.classList.add('expanded');
-                    const targetHeight = memoList.scrollHeight;
-                    memoList.style.height = '0px';
-                    memoList.offsetHeight; // 강제 리플로우
-                    memoList.style.height = targetHeight + 'px';
                     if (toggle) toggle.classList.add('expanded');
-                    
-                    // 애니메이션 완료 후 height를 auto로 변경
-                    setTimeout(() => {
-                        if (expandedCategories.has(categoryName)) {
-                            memoList.style.height = 'auto';
-                        }
-                    }, 300);
                 }
 
                 saveData();
@@ -522,6 +500,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateDateTime();
         setInterval(updateDateTime, 1000);
         console.log('앱 초기화 완료');
+    };
+
+    // 디버깅용 전역 함수
+    window.testAccordion = () => {
+        console.log('=== 아코디언 디버깅 ===');
+        console.log('카테고리 수:', categories.length);
+        console.log('확장된 카테고리:', Array.from(expandedCategories));
+        
+        const headers = document.querySelectorAll('.category-header');
+        console.log('헤더 요소 수:', headers.length);
+        
+        headers.forEach((header, i) => {
+            console.log(`헤더 ${i}:`, header.dataset.category, header.classList.contains('active'));
+        });
+        
+        const memoLists = document.querySelectorAll('.memo-list');
+        console.log('메모 리스트 수:', memoLists.length);
+        
+        memoLists.forEach((list, i) => {
+            console.log(`리스트 ${i}:`, list.dataset.category, list.classList.contains('expanded'));
+        });
     };
 
     // 앱 시작

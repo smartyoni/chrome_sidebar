@@ -178,16 +178,28 @@ button[type="submit"]:hover {
 /* Memo List Styles */
 .memo-list {
     background: #f8f9fa;
-    height: 0;
-    overflow: hidden;
-    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: none;
     padding: 0;
     margin: 0;
     list-style: none;
+    transition: all 0.3s ease-in-out;
 }
 
 .memo-list.expanded {
+    display: block;
     padding: 10px 0;
+    animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .memo-item {
