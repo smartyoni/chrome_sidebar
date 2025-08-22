@@ -158,25 +158,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 카테고리 헤더 클릭 (확장/축소)
         categoryAccordion.querySelectorAll('.category-header').forEach(header => {
             header.addEventListener('click', (e) => {
+                // 편집/삭제 버튼 클릭 시 아코디언 토글 방지
                 if (e.target.classList.contains('edit-category-btn') || 
-                    e.target.classList.contains('delete-category-btn')) {
+                    e.target.classList.contains('delete-category-btn') ||
+                    e.target.closest('.edit-category-btn') ||
+                    e.target.closest('.delete-category-btn')) {
                     return;
                 }
+
+                e.preventDefault();
+                e.stopPropagation();
 
                 const categoryName = header.dataset.category;
                 const memoList = header.nextElementSibling;
                 const toggle = header.querySelector('.category-toggle');
 
+                console.log('토글 클릭:', categoryName, expandedCategories.has(categoryName));
+
                 if (expandedCategories.has(categoryName)) {
+                    // 축소
                     expandedCategories.delete(categoryName);
                     header.classList.remove('active');
                     memoList.classList.remove('expanded');
-                    toggle.classList.remove('expanded');
+                    if (toggle) toggle.classList.remove('expanded');
                 } else {
+                    // 확장
                     expandedCategories.add(categoryName);
                     header.classList.add('active');
                     memoList.classList.add('expanded');
-                    toggle.classList.add('expanded');
+                    if (toggle) toggle.classList.add('expanded');
                 }
 
                 saveData();
@@ -257,10 +267,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 모달 푸터에 버튼들 추가
         const modalFooter = document.getElementById('view-modal-footer');
         modalFooter.innerHTML = `
-            <button class="modal-btn copy-btn" onclick="copyMemoContent('${memoId}')">복사</button>
-            <button class="modal-btn edit-btn" onclick="editMemo('${memoId}')">수정</button>
-            <button class="modal-btn delete-btn" onclick="deleteMemo('${memoId}')">삭제</button>
+            <button class="modal-btn copy-btn" data-memo-id="${memoId}">복사</button>
+            <button class="modal-btn edit-btn" data-memo-id="${memoId}">수정</button>
+            <button class="modal-btn delete-btn" data-memo-id="${memoId}">삭제</button>
         `;
+
+        // 버튼 이벤트 리스너 추가
+        const copyBtn = modalFooter.querySelector('.copy-btn');
+        const editBtn = modalFooter.querySelector('.edit-btn');
+        const deleteBtn = modalFooter.querySelector('.delete-btn');
+
+        copyBtn.addEventListener('click', () => copyMemoContent(memoId));
+        editBtn.addEventListener('click', () => editMemo(memoId));
+        deleteBtn.addEventListener('click', () => deleteMemo(memoId));
 
         viewModal.style.display = 'block';
     };
@@ -274,25 +293,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderCategories();
     };
 
-    // 전역 함수들 (HTML에서 호출)
-    window.copyMemoContent = async (memoId) => {
+    // 메모 액션 함수들
+    const copyMemoContent = async (memoId) => {
         const memo = memos.find(m => m.id === memoId);
         if (!memo) return;
 
         try {
             await navigator.clipboard.writeText(memo.content);
             const copyBtn = document.querySelector('.copy-btn');
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '복사 완료!';
-            setTimeout(() => {
-                copyBtn.textContent = originalText;
-            }, 1500);
+            if (copyBtn) {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '복사 완료!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 1500);
+            }
         } catch (error) {
             console.error('복사 실패:', error);
         }
     };
 
-    window.editMemo = (memoId) => {
+    const editMemo = (memoId) => {
         const memo = memos.find(m => m.id === memoId);
         if (!memo) return;
 
@@ -302,7 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         editModal.style.display = 'block';
     };
 
-    window.deleteMemo = async (memoId) => {
+    const deleteMemo = async (memoId) => {
         if (!confirm('이 메모를 삭제하시겠습니까?')) return;
 
         memos = memos.filter(m => m.id !== memoId);
@@ -452,17 +473,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 초기화
     const initialize = async () => {
+        console.log('앱 초기화 시작');
         await loadData();
-        renderCategories();
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
-
+        console.log('데이터 로드 완료:', { categories: categories.length, memos: memos.length, expandedCategories: Array.from(expandedCategories) });
+        
         // 첫 번째 카테고리를 기본으로 확장
         if (categories.length > 0 && expandedCategories.size === 0) {
             expandedCategories.add(categories[0].name);
+            console.log('첫 번째 카테고리 확장:', categories[0].name);
             await saveData();
-            renderCategories();
         }
+        
+        renderCategories();
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        console.log('앱 초기화 완료');
     };
 
     // 앱 시작
