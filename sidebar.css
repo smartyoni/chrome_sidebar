@@ -72,6 +72,16 @@ body {
     justify-content: space-between;
 }
 
+.button-row button[type="submit"] {
+    flex: 1;
+    font-weight: 600;
+}
+
+.button-row #add-category-btn {
+    flex: 0 0 auto;
+    min-width: 130px;
+}
+
 button {
     padding: 10px 16px;
     border: none;
@@ -128,9 +138,9 @@ button[type="submit"]:hover {
     transition: background-color 0.2s ease;
     border: none;
     width: 100%;
-    text-align: left;
     font-size: 16px;
     font-weight: 500;
+    user-select: none;
 }
 
 .category-header:hover {

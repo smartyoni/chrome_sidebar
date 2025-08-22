@@ -18,12 +18,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     let expandedCategories = new Set();
     let currentEditingMemoId = null;
 
-    // 기본 카테고리 데이터
-    const defaultCategories = [
-        { name: '계약', color: '#3498db', icon: '📄' },
-        { name: '광고', color: '#e74c3c', icon: '📢' },
-        { name: '기타', color: '#95a5a6', icon: '📌' }
+    // 선명하고 예쁜 색상 팔레트
+    const prettyColors = [
+        '#FF4757', '#3742FA', '#2ED573', '#FFA502', '#FF6B35',
+        '#5352ED', '#FF3838', '#00D2D3', '#FFC312', '#C44569',
+        '#40407A', '#706FD3', '#F97F51', '#1DD1A1', '#55A3FF',
+        '#26DE81', '#FD79A8', '#FDCB6E', '#6C5CE7', '#74B9FF',
+        '#00B894', '#E17055', '#81ECEC', '#FAB1A0', '#00CEC9'
     ];
+
+    // 기본 카테고리 데이터 (IN-BOX는 삭제 불가)
+    const defaultCategories = [
+        { name: 'IN-BOX', color: '#FF6B9D', isDeletable: false },
+        { name: '계약', color: getRandomPrettyColor(), isDeletable: true },
+        { name: '광고', color: getRandomPrettyColor(), isDeletable: true },
+        { name: '기타', color: getRandomPrettyColor(), isDeletable: true }
+    ];
+
+    // 랜덤 예쁜 색상 선택 함수
+    function getRandomPrettyColor() {
+        return prettyColors[Math.floor(Math.random() * prettyColors.length)];
+    }
 
     // 데이터 로드 및 저장
     const loadData = async () => {
@@ -113,24 +128,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const isExpanded = expandedCategories.has(category.name);
 
+            // 카테고리 삭제 가능 여부 확인
+            const isDeletable = category.isDeletable !== false; // 기본값은 true
+            
             categoryContainer.innerHTML = `
-                <button class="category-header ${isExpanded ? 'active' : ''}" data-category="${category.name}">
+                <div class="category-header ${isExpanded ? 'active' : ''}" data-category="${category.name}" style="border-left: 4px solid ${category.color};">
                     <div class="category-title">
-                        <span style="font-size: 18px;">${category.icon}</span>
                         <span>${category.name}</span>
-                        <span class="memo-count">${categoryMemos.length}</span>
+                        <span class="memo-count" style="background: ${category.color}20; color: ${category.color};">${categoryMemos.length}</span>
                     </div>
                     <div class="category-actions">
-                        <button class="edit-category-btn" data-category="${category.name}" title="이름 수정">수정</button>
-                        <button class="delete-category-btn" data-category="${category.name}" title="카테고리 삭제">삭제</button>
+                        ${isDeletable ? `<button class="edit-category-btn" data-category="${category.name}" title="이름 수정">수정</button>` : ''}
+                        ${isDeletable ? `<button class="delete-category-btn" data-category="${category.name}" title="카테고리 삭제">삭제</button>` : ''}
                         <span class="category-toggle ${isExpanded ? 'expanded' : ''}">▼</span>
                     </div>
-                </button>
+                </div>
                 <ul class="memo-list ${isExpanded ? 'expanded' : ''}" data-category="${category.name}">
                     ${sortedMemos.length === 0 
                         ? '<div class="empty-category"><p>메모가 없습니다.</p></div>'
                         : sortedMemos.map(memo => `
-                            <li class="memo-item ${memo.isBookmarked ? 'bookmarked' : ''}" data-id="${memo.id}">
+                            <li class="memo-item ${memo.isBookmarked ? 'bookmarked' : ''}" data-id="${memo.id}" style="border-left-color: ${category.color};">
                                 <div class="memo-header">
                                     <div class="memo-title">${getFirstLine(memo.content)}</div>
                                     <div class="memo-actions">
@@ -158,49 +175,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 카테고리 이벤트 리스너
     const attachCategoryEventListeners = () => {
-        console.log('이벤트 리스너 연결 중...');
+        console.log('=== 이벤트 리스너 연결 ===');
         
         // 카테고리 헤더 클릭 (확장/축소)
         categoryAccordion.querySelectorAll('.category-header').forEach((header, index) => {
-            console.log(`헤더 ${index} 이벤트 리스너 추가:`, header.dataset.category);
+            console.log(`헤더 ${index}: ${header.dataset.category}`);
             
             header.addEventListener('click', (e) => {
-                console.log('헤더 클릭됨:', e.target);
+                console.log('🎯 클릭 감지!', e.target.tagName, e.target.className);
                 
-                // 편집/삭제 버튼 클릭 시 아코디언 토글 방지
-                if (e.target.classList.contains('edit-category-btn') || 
-                    e.target.classList.contains('delete-category-btn') ||
-                    e.target.closest('.edit-category-btn') ||
-                    e.target.closest('.delete-category-btn')) {
-                    console.log('편집/삭제 버튼 클릭 - 토글 방지');
+                // 편집/삭제 버튼 클릭은 무시
+                if (e.target.tagName === 'BUTTON') {
+                    console.log('버튼 클릭 무시');
                     return;
                 }
-
-                e.preventDefault();
-                e.stopPropagation();
 
                 const categoryName = header.dataset.category;
                 const memoList = header.nextElementSibling;
                 const toggle = header.querySelector('.category-toggle');
 
-                console.log('카테고리 토글:', categoryName, '현재 상태:', expandedCategories.has(categoryName));
+                console.log('🔄 토글 실행:', categoryName);
+                console.log('현재 상태:', expandedCategories.has(categoryName) ? '확장됨' : '축소됨');
 
                 if (expandedCategories.has(categoryName)) {
                     // 축소
-                    console.log('축소 실행');
+                    console.log('➡️ 축소');
                     expandedCategories.delete(categoryName);
                     header.classList.remove('active');
                     memoList.classList.remove('expanded');
                     if (toggle) toggle.classList.remove('expanded');
                 } else {
                     // 확장
-                    console.log('확장 실행');
+                    console.log('⬇️ 확장');
                     expandedCategories.add(categoryName);
                     header.classList.add('active');
                     memoList.classList.add('expanded');
                     if (toggle) toggle.classList.add('expanded');
                 }
 
+                console.log('새 상태:', expandedCategories.has(categoryName) ? '확장됨' : '축소됨');
                 saveData();
             });
         });
@@ -244,13 +257,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addMemo = async (content) => {
         if (!content.trim()) return;
 
-        const firstCategory = categories[0];
-        if (!firstCategory) return;
+        // 항상 IN-BOX 카테고리로 메모 추가
+        const inboxCategory = categories.find(cat => cat.name === 'IN-BOX');
+        const targetCategory = inboxCategory ? inboxCategory.name : 'IN-BOX';
 
         const newMemo = {
             id: generateId(),
             content: content.trim(),
-            category: firstCategory.name,
+            category: targetCategory,
             isBookmarked: false,
             createdAt: new Date().toISOString()
         };
@@ -355,13 +369,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'];
-        const icons = ['📝', '💼', '🎯', '💡', '📊', '🔖', '📌', '🎨', '🔬', '🎭'];
-        
         const newCategory = {
             name: trimmedName,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            icon: icons[Math.floor(Math.random() * icons.length)]
+            color: getRandomPrettyColor(),
+            isDeletable: true
         };
 
         categories.push(newCategory);
@@ -404,18 +415,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const deleteCategory = async (categoryName) => {
+        // IN-BOX 카테고리는 삭제 불가
+        if (categoryName === 'IN-BOX') {
+            alert('IN-BOX 카테고리는 삭제할 수 없습니다.');
+            return;
+        }
+
+        const category = categories.find(c => c.name === categoryName);
+        if (category && category.isDeletable === false) {
+            alert('이 카테고리는 삭제할 수 없습니다.');
+            return;
+        }
+
         const categoryMemos = memos.filter(m => m.category === categoryName);
-        const confirmMessage = categoryMemos.length > 0 
-            ? `'${categoryName}' 카테고리와 포함된 ${categoryMemos.length}개의 메모를 모두 삭제하시겠습니까?`
-            : `'${categoryName}' 카테고리를 삭제하시겠습니까?`;
+        let confirmMessage;
+        
+        if (categoryMemos.length > 0) {
+            confirmMessage = `'${categoryName}' 카테고리를 삭제하면 포함된 ${categoryMemos.length}개의 메모가 IN-BOX로 이동됩니다. 계속하시겠습니까?`;
+        } else {
+            confirmMessage = `'${categoryName}' 카테고리를 삭제하시겠습니까?`;
+        }
 
         if (!confirm(confirmMessage)) return;
 
         // 카테고리 삭제
         categories = categories.filter(c => c.name !== categoryName);
         
-        // 해당 카테고리의 모든 메모 삭제
-        memos = memos.filter(m => m.category !== categoryName);
+        // 해당 카테고리의 모든 메모를 IN-BOX로 이동
+        memos.forEach(memo => {
+            if (memo.category === categoryName) {
+                memo.category = 'IN-BOX';
+            }
+        });
         
         // 확장 상태에서 제거
         expandedCategories.delete(categoryName);
@@ -489,10 +520,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadData();
         console.log('데이터 로드 완료:', { categories: categories.length, memos: memos.length, expandedCategories: Array.from(expandedCategories) });
         
-        // 첫 번째 카테고리를 기본으로 확장
+        // IN-BOX 카테고리를 기본으로 확장
         if (categories.length > 0 && expandedCategories.size === 0) {
-            expandedCategories.add(categories[0].name);
-            console.log('첫 번째 카테고리 확장:', categories[0].name);
+            const inboxCategory = categories.find(cat => cat.name === 'IN-BOX');
+            const defaultExpanded = inboxCategory ? inboxCategory.name : categories[0].name;
+            expandedCategories.add(defaultExpanded);
+            console.log('기본 카테고리 확장:', defaultExpanded);
             await saveData();
         }
         
@@ -513,14 +546,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         headers.forEach((header, i) => {
             console.log(`헤더 ${i}:`, header.dataset.category, header.classList.contains('active'));
+            console.log(`  - 태그명: ${header.tagName}`);
+            console.log(`  - 클릭 이벤트 수신 가능: ${header.onclick !== null || header.addEventListener !== undefined}`);
         });
         
         const memoLists = document.querySelectorAll('.memo-list');
         console.log('메모 리스트 수:', memoLists.length);
         
         memoLists.forEach((list, i) => {
-            console.log(`리스트 ${i}:`, list.dataset.category, list.classList.contains('expanded'));
+            console.log(`리스트 ${i}:`, list.dataset.category, list.classList.contains('expanded'), 
+                       list.style.display || 'default');
         });
+    };
+
+    // 간단한 수동 테스트 함수
+    window.toggleFirstCategory = () => {
+        const firstHeader = document.querySelector('.category-header');
+        if (firstHeader) {
+            console.log('첫 번째 카테고리 수동 클릭 테스트');
+            firstHeader.click();
+        } else {
+            console.log('카테고리 헤더를 찾을 수 없습니다');
+        }
     };
 
     // 앱 시작
